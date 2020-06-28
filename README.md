@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Tempus Data Engineer Challenge
 For this challenge,
  you will develop a simple
@@ -124,3 +125,6 @@ A simple REST API that can be used to retrieve breaking headlines and search for
 A simple cloud storage service run by Amazon Web Services (AWS). **An AWS account is needed to use AWS S3. Furthermore, AWS has a [free tier](https://aws.amazon.com/free/) that can be used for this challenge.**
 
 Amazon provides a Python SDK (**[boto](http://boto3.readthedocs.io/en/latest/guide/resources.html)**), that provides an easy to use API for interacting with AWS S3.
+=======
+# tempus_challenge
+>>>>>>> 80b6dc7b493a9728746ddb70ce02dea04fdb8736
