@@ -62,8 +62,12 @@ class Retrieval:
 
             print("Retrieving sources with language {} ...".format(language))
             response = requests.get(url)
-            r_json = response.json()
+            try:
+                response.raise_for_status()
+            except requests.exceptions.HTTPError as e:
+                return "Error: " + str(e)
 
+            r_json = response.json()
             news_sources = r_json['sources']
 
             # add source id and name from json to dict
@@ -95,6 +99,11 @@ class Retrieval:
             url = 'https://newsapi.org/v2/top-headlines?sources={}&apiKey={}'.format(source_id, NEWS_API_KEY)
 
             response = requests.get(url)
+            try:
+                response.raise_for_status()
+            except requests.exceptions.HTTPError as e:
+                return "Error: " + str(e)
+
             r_json = response.json()
 
             # add top headlines to directory
@@ -123,6 +132,11 @@ class Retrieval:
 
             print("Retrieving top headlines with keyword {} ...".format(q))
             response = requests.get(url)
+            try:
+                response.raise_for_status()
+            except requests.exceptions.HTTPError as e:
+                return "Error: " + str(e)
+
             r_json = response.json()
 
             # add top headlines to directory
