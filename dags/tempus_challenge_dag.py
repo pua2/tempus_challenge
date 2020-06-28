@@ -9,6 +9,7 @@ from airflow.utils.dates import days_ago
 
 import challenge as c
 
+# get S3_BUCKET variable
 S3_BUCKET = os.getenv("S3_BUCKET")
 
 default_args = {

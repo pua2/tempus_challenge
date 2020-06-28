@@ -12,14 +12,8 @@ from pandas.io.json import json_normalize
 import boto3
 import os.path
 
-#NEWS_API_KEY = '30eead0be8f841ce9041236db0d46a34'
-#NEWS_API_KEY = 'a9a03a0d93f24948a3d41a5f4b69dde4'
-#NEWS_API_KEY = '2842bef0853248eb849359cde0cc837e'
 CURR_DIR = os.getcwd()
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
-#S3_BUCKET = os.getenv("S3_BUCKET")
-#S3_BUCKET_BONUS = os.getenv("S3_BUCKET_BONUS")
-#NEWS_API_KEY = 'a9a03a0d93f24948a3d41a5f4b69dde4'
 
 def make_dir(path, name):
     """
