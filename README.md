@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Tempus Data Engineer Challenge
 For this challenge,
  you will develop a simple
