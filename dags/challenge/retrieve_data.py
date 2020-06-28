@@ -59,7 +59,7 @@ class Retrieval:
             try:
                 response.raise_for_status()
             except requests.exceptions.HTTPError as e:
-                return "Error: " + str(e)
+                return "Error: Unexpected response {}".format(response)
 
             r_json = response.json()
             news_sources = r_json['sources']
@@ -96,7 +96,7 @@ class Retrieval:
             try:
                 response.raise_for_status()
             except requests.exceptions.HTTPError as e:
-                return "Error: " + str(e)
+                return "Error: Unexpected response {}".format(response)
 
             r_json = response.json()
 
@@ -129,7 +129,7 @@ class Retrieval:
             try:
                 response.raise_for_status()
             except requests.exceptions.HTTPError as e:
-                return "Error: " + str(e)
+                return "Error: Unexpected response {}".format(response)
 
             r_json = response.json()
 
