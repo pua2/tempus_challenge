@@ -4,16 +4,16 @@ Functions required to retrieve and transfer data to S3 Buckets
 Handles challenge and bonus
 """
 
-import requests
 import os
-import json
-import pandas as pd
-from pandas.io.json import json_normalize
-import boto3
 import os.path
+
+import boto3
+import requests
+from pandas.io.json import json_normalize
 
 CURR_DIR = os.getcwd()
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
+
 
 def make_dir(path, name):
     """
@@ -25,17 +25,39 @@ def make_dir(path, name):
     :rtype: str
     """
 
-    dir = os.path.join(path,name)
+    dir = os.path.join(path, name)
     check_dir = os.path.isdir(dir)
 
     if not check_dir:
         os.makedirs(dir)
-        print('New directory, {}, made in {}.'.format(name, path))
+        print(f'New directory, {name}, made in {path}.')
     else:
-        print('{} directory already exists in {}.'.format(name, path))
+        print(f'{name} directory already exists in {path}.')
     return dir
 
+
 class Retrieval:
+
+    def convert_to_df(top_headlines_json):
+        """
+        Converts json to df for articles_df
+
+        :param dict top_headlines_json: json results of top headlines
+        :return: articles as a DataFrame
+        :rtype: DataFrame
+        """
+        articles_df = pd.DataFrame()
+
+        # split sources into seperate fields
+        for articles in top_headlines_json['articles']:
+            articles['source_name'] = articles['source']['name']
+            articles['source_id'] = articles['source']['id']
+
+            del articles['source']
+
+            articles_df = articles_df.append(articles, ignore_index=True)
+
+        return articles_df
 
     @classmethod
     def get_sources_lang(cls, *args):
@@ -52,14 +74,14 @@ class Retrieval:
         print("Retrieving sources ...")
         # loop through list of languages
         for language in args:
-            url = 'https://newsapi.org/v2/sources?language={}&apiKey={}'.format(language, NEWS_API_KEY)
+            url = f'https://newsapi.org/v2/sources?language={language}&apiKey={NEWS_API_KEY}'
 
-            print("Retrieving sources with language {} ...".format(language))
+            print(f"Retrieving sources with language {language} ...")
             response = requests.get(url)
             try:
                 response.raise_for_status()
             except requests.exceptions.HTTPError as e:
-                return "Error: {}".format(e)
+                return f"Error: {e}"
 
             r_json = response.json()
             news_sources = r_json['sources']
@@ -70,7 +92,6 @@ class Retrieval:
                     source_info[source['id']] = source['name']
 
         return source_info
-
 
     @classmethod
     def get_headlines(cls, **context):
@@ -90,20 +111,20 @@ class Retrieval:
         print("Retrieving top headlines ...")
         # loop through source dict
         for source_id, source_name in source_info.items():
-            url = 'https://newsapi.org/v2/top-headlines?sources={}&apiKey={}'.format(source_id, NEWS_API_KEY)
+            url = f'https://newsapi.org/v2/top-headlines?sources={source_id}&apiKey={NEWS_API_KEY}'
 
             response = requests.get(url)
             try:
                 response.raise_for_status()
             except requests.exceptions.HTTPError as e:
-                return "Error: {}".format(e)
+                return f"Error: {e}"
 
             r_json = response.json()
+            articles_pd = convert_to_df(r_json)
 
             # add top headlines to directory
             # key: source names
             # value: top headlines
-            articles_pd = json_normalize(r_json['articles'])
             top_headlines[source_name] = articles_pd
 
         return top_headlines
@@ -122,27 +143,27 @@ class Retrieval:
         print("Retrieving top headlines ...")
         # loop through keywords
         for q in args:
-            url = 'https://newsapi.org/v2/top-headlines?q={}&apiKey={}'.format(q, NEWS_API_KEY)
+            url = f'https://newsapi.org/v2/top-headlines?q={q}&apiKey={NEWS_API_KEY}'
 
-            print("Retrieving top headlines with keyword {} ...".format(q))
+            print(f"Retrieving top headlines with keyword {q} ...")
             response = requests.get(url)
             try:
                 response.raise_for_status()
             except requests.exceptions.HTTPError as e:
-                return "Error: {}".format(e)
+                return f"Error: {e}"
 
             r_json = response.json()
+            articles_pd = convert_to_df(r_json)
 
             # add top headlines to directory
             # key: keywords
             # value: top headlines
-            articles_pd = json_normalize(r_json['articles'])
             top_headlines[q] = articles_pd
 
         return top_headlines
 
     @classmethod
-    def upload_to_S3(cls, **kwargs):
+    def upload_to_s3(cls, **kwargs):
         """
         Create csv from top headlines and upload to S3 Buckets
         """
@@ -156,26 +177,26 @@ class Retrieval:
         bucket = kwargs['S3_BUCKET']
 
         # create directory to store csv
-        print("Creating csv directory in {} ...".format(CURR_DIR))
-        csv_dir = make_dir(CURR_DIR,'csv')
+        print(f"Creating csv directory in {CURR_DIR} ...")
+        csv_dir = make_dir(CURR_DIR, 'csv')
 
         # connect to S3 bucket
         print("Starting S3 connection ...")
         s3_client = boto3.client('s3')
 
         # loop through top headlines dict
-        print("Creating csv files and uploading to {} bucket ...".format(bucket))
+        print(f"Creating csv files and uploading to {bucket} bucket ...")
         for dir_name, top_headline in top_headlines.items():
             csv_filename = 'top_headlines.csv'
-            csv_file_path = os.path.join(csv_dir,csv_filename)
+            csv_file_path = os.path.join(csv_dir, csv_filename)
             # create csv file
             # continuously replace new csv file with current file
-            top_headline.to_csv(csv_file_path,index=False)
+            top_headline.to_csv(csv_file_path, index=False)
 
-            s3_filename = '{}_top_headlines.csv'.format(execution_date)
-            s3_path = '{}/{}'.format(dir_name, s3_filename)
+            s3_filename = f'{execution_date}_top_headlines.csv'
+            s3_path = f'{dir_name}/{s3_filename}'
 
             # upload file to S3 bucket
             s3_client.upload_file(csv_file_path, bucket, s3_path)
 
-        print("Files uploaded to {} bucket.".format(bucket))
+        print(f"Files uploaded to {bucket} bucket.")
