@@ -171,7 +171,7 @@ class Retrieval:
         ti = kwargs['ti']
         top_headlines = ti.xcom_pull(task_ids='retrieve_headlines')
 
-        # get exection date from airflow context
+        # get execution date from airflow context
         execution_date = kwargs['ds_nodash']
         bucket = kwargs['S3_BUCKET']
 
@@ -181,7 +181,10 @@ class Retrieval:
 
         # connect to S3 bucket
         print("Starting S3 connection ...")
-        s3_client = boto3.client('s3')
+        try:
+            s3_client = boto3.client('s3')
+        except ClientError as e:
+            return f"Error: {e}"
 
         # loop through top headlines dict
         print(f"Creating csv files and uploading to {bucket} bucket ...")
@@ -196,6 +199,9 @@ class Retrieval:
             s3_path = f'{dir_name}/{s3_filename}'
 
             # upload file to S3 bucket
-            s3_client.upload_file(csv_file_path, bucket, s3_path)
+            try:
+                s3_client.upload_file(csv_file_path, bucket, s3_path)
+            except ClientError as e:
+                return f"Error: {e}"
 
         print(f"Files uploaded to {bucket} bucket.")
