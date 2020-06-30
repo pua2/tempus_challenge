@@ -33,6 +33,7 @@ Our data pipeline must fetch data from [News API](https://newsapi.org),
     * Top headlines are formatted into csv files
     * Each file is uploaded into a separate directory. Each directory is named after the source name.
     * File names are labeled as 'yyyyMMdd_top_headlines.csv'
+    * Empty files will also be uploaded to ensure no days are missed.
 4. end_task: DummyOperator used to show end of task.
 
 ### tempus_challenge_bonus_dag
@@ -44,6 +45,7 @@ This pipeline is set to run daily
     * Top headlines are formatted into csv files
     * Each file is uploaded into a separate directory. Each directory is named after the keyword.
     * File names are labeled as 'yyyyMMdd_top_headlines.csv'
+    * Empty files will also be uploaded to ensure no days are missed.
 3. end_task: DummyOperator used to show end of task.
 
 ## Additional Notes
