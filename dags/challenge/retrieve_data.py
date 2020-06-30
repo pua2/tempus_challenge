@@ -119,7 +119,7 @@ class Retrieval:
                 return f"Error: {e}"
 
             r_json = response.json()
-            articles_pd = convert_to_df(r_json)
+            articles_pd = cls.convert_to_df(r_json)
 
             # add top headlines to directory
             # key: source names
@@ -152,7 +152,7 @@ class Retrieval:
                 return f"Error: {e}"
 
             r_json = response.json()
-            articles_pd = convert_to_df(r_json)
+            articles_pd = cls.convert_to_df(r_json)
 
             # add top headlines to directory
             # key: keywords
