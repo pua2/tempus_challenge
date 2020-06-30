@@ -6,10 +6,9 @@ Handles challenge and bonus
 
 import os
 import os.path
-
+import pandas as pd
 import boto3
 import requests
-from pandas.io.json import json_normalize
 
 CURR_DIR = os.getcwd()
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
